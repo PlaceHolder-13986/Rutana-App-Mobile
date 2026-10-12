@@ -5,6 +5,7 @@
     <option name="featurePrefix" value="feature/" />
     <option name="hotfixPrefix" value="hotfix/" />
     <option name="mainBranch" value="main" />
+    <option name="preferredUsername" value="" />
     <option name="releasePrefix" value="release/" />
     <option name="showDetails" value="true" />
   </component>
