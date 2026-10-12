@@ -1,0 +1,14 @@
+<!-- Logo de Rutana redibujado. Si exportan el original desde Figma (SVG),
+     pueden importarlo con File > New > Vector Asset y reemplazar este archivo. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp" android:height="61dp"
+    android:viewportWidth="40" android:viewportHeight="38">
+    <group android:translateX="1" android:translateY="1">
+        <path android:fillColor="#FFFFD900" android:strokeColor="#FFFFD900" android:strokeWidth="1.6" android:strokeLineJoin="round"
+            android:pathData="M0,0H12V3L3,12H0Z"/>
+        <path android:fillColor="#FFFFD900" android:strokeColor="#FFFFD900" android:strokeWidth="1.6" android:strokeLineJoin="round"
+            android:pathData="M38,0H26V3L35,12H38Z"/>
+        <path android:fillColor="#FFFFFFFF" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6" android:strokeLineJoin="round"
+            android:pathData="M19,3L38,22V33L36.5,35L19,18.5L1.5,35L0,33V22Z"/>
+    </group>
+</vector>
