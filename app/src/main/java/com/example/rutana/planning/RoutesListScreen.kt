@@ -236,11 +236,11 @@ fun RouteCardItem(
     onClick: () -> Unit
 ) {
     val statusColor = when (route.status) {
-        RouteStatus.DRAFT -> Color(0xFFF59E0B) // Amber
-        RouteStatus.PUBLISHED -> Color(0xFF10B981) // Green
-        RouteStatus.IN_PROGRESS -> Color(0xFF3B82F6) // Blue
-        RouteStatus.COMPLETED -> Color(0xFF059669) // Dark Green
-        RouteStatus.CLOSED_WITH_PENDINGS -> Color(0xFFEF4444) // Red
+        RouteStatus.DRAFT -> Color(0xFFF59E0B) // Amber/Yellow
+        RouteStatus.PUBLISHED -> Color(0xFF0EA5E9) // Sky Blue/Cyan
+        RouteStatus.IN_PROGRESS -> Color(0xFF6366F1) // Indigo Blue
+        RouteStatus.COMPLETED -> Color(0xFF10B981) // Emerald Green
+        RouteStatus.CLOSED_WITH_PENDINGS -> Color(0xFFEF4444) // Coral Red
     }
 
     Card(
