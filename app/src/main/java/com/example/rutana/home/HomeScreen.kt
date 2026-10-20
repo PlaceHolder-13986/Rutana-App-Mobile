@@ -3,6 +3,7 @@ package com.example.rutana.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,6 +45,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rutana.R
 import com.example.rutana.components.RutanaTopBar
+import com.example.rutana.planning.RouteExecutionScreen
+import com.example.rutana.planning.RoutePlanningScreen
+import com.example.rutana.planning.RoutesListScreen
 import com.example.rutana.ui.theme.RutanaNavyDark
 import com.example.rutana.ui.theme.RutanaTheme
 import kotlinx.coroutines.launch
@@ -66,6 +71,11 @@ fun HomeScreen(
 ) {
     // Qué opción del menú está elegida
     var opcionActual by remember { mutableStateOf(opcionesMenu[0]) }
+
+    // Sub-navegación dentro de la sección "Routes"
+    // 0: Lista de rutas, 1: Planificación (Borrador), 2: Monitoreo/Ejecución
+    var planningSubScreen by remember { mutableStateOf(0) }
+    var selectedRouteId by remember { mutableLongStateOf(0L) }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -100,6 +110,7 @@ fun HomeScreen(
                         selected = opcion == opcionActual,
                         onClick = {
                             opcionActual = opcion
+                            planningSubScreen = 0
                             scope.launch { drawerState.close() }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -118,81 +129,121 @@ fun HomeScreen(
             }
         }
     ) {
+        val showMainTopBar = (opcionActual != opcionesMenu[1]) || (planningSubScreen == 0)
+
         Scaffold(
             topBar = {
-                RutanaTopBar(
-                    titulo = opcionActual.titulo,
-                    onMenuClick = { scope.launch { drawerState.open() } },
-                    onPerfilClick = { }
-                )
+                if (showMainTopBar) {
+                    RutanaTopBar(
+                        titulo = opcionActual.titulo,
+                        onMenuClick = { scope.launch { drawerState.open() } },
+                        onPerfilClick = { }
+                    )
+                }
             },
             containerColor = MaterialTheme.colorScheme.background
         ) { innerPadding ->
-            if (opcionActual == opcionesMenu[0]) {
-                // ---------- Inicio: bienvenida + accesos rápidos ----------
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 160.dp),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Card(
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(if (showMainTopBar) innerPadding else PaddingValues(0.dp))
+            ) {
+                when (opcionActual.titulo) {
+                    "Home" -> {
+                        // ---------- Inicio: bienvenida + accesos rápidos ----------
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(minSize = 160.dp),
+                            contentPadding = PaddingValues(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxSize()
                         ) {
-                            Column(modifier = Modifier.padding(20.dp)) {
-                                Text("Welcome, $nombreUsuario", style = MaterialTheme.typography.titleLarge)
-                                Text("What do you want to manage today?", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                Card(
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(20.dp)) {
+                                        Text("Welcome, $nombreUsuario", style = MaterialTheme.typography.titleLarge)
+                                        Text("What do you want to manage today?", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+
+                            items(opcionesMenu.drop(1)) { opcion ->
+                                Card(
+                                    onClick = {
+                                        opcionActual = opcion
+                                        planningSubScreen = 0
+                                    },
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(112.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(16.dp),
+                                        verticalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Icon(
+                                            painterResource(opcion.icono),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                        Text(opcion.titulo, style = MaterialTheme.typography.titleMedium)
+                                    }
+                                }
                             }
                         }
                     }
 
-                    items(opcionesMenu.drop(1)) { opcion ->
-                        Card(
-                            onClick = { opcionActual = opcion },
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(112.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                verticalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Icon(
-                                    painterResource(opcion.icono),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(32.dp)
-                                )
-                                Text(opcion.titulo, style = MaterialTheme.typography.titleMedium)
-                            }
+                    "Routes" -> {
+                        // ---------- Bounded Context Planning ----------
+                        when (planningSubScreen) {
+                            0 -> RoutesListScreen(
+                                onOpenPlanning = { routeId ->
+                                    selectedRouteId = routeId
+                                    planningSubScreen = 1
+                                },
+                                onOpenExecution = { routeId ->
+                                    selectedRouteId = routeId
+                                    planningSubScreen = 2
+                                }
+                            )
+
+                            1 -> RoutePlanningScreen(
+                                routeId = selectedRouteId,
+                                onBack = { planningSubScreen = 0 },
+                                onPublishedSuccess = { planningSubScreen = 0 }
+                            )
+
+                            2 -> RouteExecutionScreen(
+                                routeId = selectedRouteId,
+                                onBack = { planningSubScreen = 0 }
+                            )
                         }
                     }
-                }
-            } else {
-                // ---------- Otras secciones: por ahora "Coming soon" ----------
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painterResource(opcionActual.icono),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Text("Coming soon", style = MaterialTheme.typography.titleLarge)
+
+                    else -> {
+                        // ---------- Otras secciones: por ahora "Coming soon" ----------
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                painterResource(opcionActual.icono),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            Text("Coming soon", style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
                 }
             }
         }
