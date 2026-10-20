@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -97,34 +98,39 @@ fun RoutePlanningScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(RutanaNavy)
+                .statusBarsPadding()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBack) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.size(40.dp)
+                ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_logout),
+                        painter = painterResource(R.drawable.ic_arrow_back),
                         contentDescription = "Volver",
                         tint = Color.White
                     )
                 }
-                Text(
-                    text = "Route planning - ${route.code}",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Spacer(Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = "Route planning - ${route.code}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "${route.name} (${route.date})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.85f)
+                    )
+                }
             }
-
-            Text(
-                text = "${route.name} (${route.date})",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.8f),
-                modifier = Modifier.padding(start = 12.dp)
-            )
 
             // Publish CTA Button
             Button(
