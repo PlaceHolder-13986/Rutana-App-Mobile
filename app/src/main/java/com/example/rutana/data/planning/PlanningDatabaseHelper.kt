@@ -535,7 +535,24 @@ class PlanningDatabaseHelper(context: Context) : SQLiteOpenHelper(
             if (reason != null) put("rejection_reason", reason)
             if (newStatus == LocationDeliveryStatus.COMPLETED) put("confirm_time", timeStr)
         }
-        return db.update("route_locations", values, "id = ?", arrayOf(routeLocationId.toString())) > 0
+        val updated = db.update("route_locations", values, "id = ?", arrayOf(routeLocationId.toString())) > 0
+
+        if (updated) {
+            val cursor = db.query("route_locations", arrayOf("route_id"), "id = ?", arrayOf(routeLocationId.toString()), null, null, null)
+            if (cursor.moveToFirst()) {
+                val routeId = cursor.getLong(0)
+                val route = getRouteById(routeId)
+                if (route?.status == RouteStatus.PUBLISHED) {
+                    val routeValues = ContentValues().apply {
+                        put("status", RouteStatus.IN_PROGRESS.name)
+                    }
+                    db.update("routes", routeValues, "id = ?", arrayOf(routeId.toString()))
+                }
+            }
+            cursor.close()
+        }
+
+        return updated
     }
 
     fun closeRoute(routeId: Long, forceWithPendings: Boolean = false): Boolean {
